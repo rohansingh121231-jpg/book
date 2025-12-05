@@ -2,7 +2,6 @@
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
-    <!-- Updated Viewport: Allowed user scaling for pinch-to-zoom on mobile -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>The Cosmic Wisdom - विज्ञान, दर्शन और धर्म</title>
     
@@ -23,7 +22,6 @@
             background: radial-gradient(ellipse at bottom, #0d1b2a 0%, #000000 100%);
             color: #e2e8f0;
             overflow: hidden; 
-            /* Improved touch action handling */
             touch-action: none; 
         }
         
@@ -258,9 +256,17 @@
         .book-open-text .scriptural-body { font-weight: 500; }
         .book-open-text .english-body { font-weight: 500; }
         
-        /* Cursor styles for pan/zoom */
         .cursor-grab { cursor: grab; }
         .cursor-grabbing { cursor: grabbing; }
+        
+        /* Hide scrollbar completely but keep content */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
     </style>
 </head>
 <body>
@@ -370,7 +376,6 @@ const CosmicBook = () => {
     const audioRef = useRef(new Audio(FLIP_SOUND_URL));
     const containerRef = useRef(null);
 
-    // Initial check for mobile
     useEffect(() => {
         const checkMobile = () => setIsMobile(window.innerWidth < 768);
         checkMobile();
@@ -379,12 +384,8 @@ const CosmicBook = () => {
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
-    // Reset zoom when book closes or opens
     useEffect(() => {
         if(isOpen) {
-            // When opening, reset to a clean state but center it for open view
-            // We use '1' as scale here because we handle the 'fit' in CSS logic primarily, 
-            // but for user manual zoom, we start at 1.
             setTransform({ x: 0, y: 0, scale: 1 });
         } else {
             setTransform({ x: 0, y: 0, scale: 1 });
@@ -398,6 +399,8 @@ const CosmicBook = () => {
         }
     };
 
+    // --- SPLIT CONTENT TO AVOID SCROLLING ---
+    // Content is now sharded into multiple pages to ensure it fits "cleanly" without scrollbars
     const bookContent = [
         {
             title: "प्रस्तावना",
@@ -407,53 +410,74 @@ const CosmicBook = () => {
             pageNumber: 1
         },
         {
-            title: "विज्ञान",
-            text: "ब्रह्मांड की उत्पत्ति Big Bang से हुई या किसी और शक्ति से? Quantum mechanics और आत्मा का क्या संबंध है? विज्ञान हमें 'कैसे' का उत्तर देता है, पदार्थ और ऊर्जा के नियम समझाता है।",
-            enTitle: "Science",
-            enText: "Was the universe born from the Big Bang or from some higher power? What is the relationship between quantum mechanics and the soul? Science answers the 'how', explaining the laws of matter and energy.",
+            title: "विज्ञान (भाग १)",
+            text: "ब्रह्मांड की उत्पत्ति Big Bang से हुई या किसी और शक्ति से? क्या समय और स्थान (Space-Time) सिर्फ एक भ्रम है?",
+            enTitle: "Science (Part I)",
+            enText: "Was the universe born from the Big Bang or from some higher power? Is Space-Time merely an illusion?",
             pageNumber: 2
         },
         {
-            title: "दर्शन",
-            text: "हम कौन हैं? हमारा उद्देश्य क्या है? Philosophy हमें 'क्यों' का उत्तर खोजने में मदद करती है। यह तर्क, चिंतन और आत्म-निरीक्षण का मार्ग है।",
-            enTitle: "Philosophy",
-            enText: "Who are we? What is our purpose? Philosophy helps us search for the answer to 'why'. It is the path of reason, contemplation and self-inquiry.",
+            title: "विज्ञान (भाग २)",
+            text: "Quantum mechanics और चेतना (Consciousness) का क्या संबंध है? विज्ञान हमें 'कैसे' का उत्तर देता है, पदार्थ और ऊर्जा के नियम समझाता है।",
+            enTitle: "Science (Part II)",
+            enText: "What is the relationship between quantum mechanics and consciousness? Science answers the 'how', explaining the laws of matter and energy.",
             pageNumber: 3
         },
         {
-            title: "धर्म",
-            text: "विश्वास और आस्था की शक्ति। क्या कोई पारलौकिक शक्ति हमें चलाती है? धर्म हमें अनुशासन, करुणा और आंतरिक शांति का मार्ग दिखाता है।",
-            enTitle: "Religion",
-            enText: "The power of faith and belief. Is there a transcendental force guiding us? Religion shows us the path of discipline, compassion and inner peace.",
+            title: "दर्शन (भाग १)",
+            text: "हम कौन हैं? हमारा उद्देश्य क्या है? Philosophy हमें 'क्यों' का उत्तर खोजने में मदद करती है।",
+            enTitle: "Philosophy (Part I)",
+            enText: "Who are we? What is our purpose? Philosophy helps us search for the answer to 'why'.",
             pageNumber: 4
+        },
+        {
+            title: "दर्शन (भाग २)",
+            text: "यह तर्क, चिंतन और आत्म-निरीक्षण का मार्ग है। यह हमें सतह से परे देखने की दृष्टि देता है।",
+            enTitle: "Philosophy (Part II)",
+            enText: "It is the path of reason, contemplation and self-inquiry. It gives us the vision to see beyond the surface.",
+            pageNumber: 5
+        },
+        {
+            title: "धर्म (भाग १)",
+            text: "विश्वास और आस्था की शक्ति। क्या कोई पारलौकिक शक्ति हमें चलाती है? धर्म हमें अनुशासन सिखाता है।",
+            enTitle: "Religion (Part I)",
+            enText: "The power of faith and belief. Is there a transcendental force guiding us? Religion teaches us discipline.",
+            pageNumber: 6
+        },
+        {
+            title: "धर्म (भाग २)",
+            text: "यह करुणा, सेवा और आंतरिक शांति का मार्ग दिखाता है। यह आत्मा को परमात्मा से जोड़ने का सेतु है।",
+            enTitle: "Religion (Part II)",
+            enText: "It shows us the path of compassion, service and inner peace. It is the bridge connecting the soul to the divine.",
+            pageNumber: 7
         },
         {
             title: "ब्रह्माण्ड",
             text: "तारे, आकाशगंगाएं और black holes — ये सब एक ही cosmic dance का हिस्सा हैं। हम भी उसी stardust से बने हैं जिससे तारे बने हैं।",
             enTitle: "Cosmos",
             enText: "Stars, galaxies and black holes — all are parts of the same cosmic dance. We too are made of the same stardust from which the stars were born.",
-            pageNumber: 5
+            pageNumber: 8
         },
         {
             title: "निष्कर्ष",
             text: "अंत में, ये तीनों रास्ते एक ही सच्चाई की तरफ जाते हैं। विज्ञान दिमाग है, दर्शन दृष्टि है और धर्म दिल है। तीनों का संतुलन ही जीवन है।",
             enTitle: "Conclusion",
             enText: "In the end, all three paths lead to the same truth. Science is the mind, philosophy is the vision and religion is the heart. Their balance is life itself.",
-            pageNumber: 6
+            pageNumber: 9
         },
         {
             title: "अंतिम पन्ना",
             text: "इस यात्रा में शामिल होने के लिए धन्यवाद। अपना नजरिया बदलें, दुनिया बदल जाएगी।",
             enTitle: "Final Page",
             enText: "Thank you for joining this journey. Change your perspective, and the world will change for you.",
-            pageNumber: 7
+            pageNumber: 10
         },
         {
             title: "समाप्त",
             text: "The End.",
             enTitle: "The End",
             enText: "The End.",
-            pageNumber: 8
+            pageNumber: 11
         }
     ];
 
@@ -461,7 +485,7 @@ const CosmicBook = () => {
     const videoUrl = "https://drive.google.com/uc?export=download&id=1SyFrFkuOFO2Zq5DVppHERPmwDy17zBVd";
 
     const openBook = (e) => {
-        e.stopPropagation(); // Prevent drag from triggering
+        e.stopPropagation();
         if(!isDragging) setIsOpen(true);
     };
 
@@ -510,12 +534,8 @@ const CosmicBook = () => {
     const leftPage = getPageData(currentPage);
     const rightPage = getPageData(currentPage + 1);
 
-    // --- PAN & ZOOM HANDLERS ---
-    
     const handleWheel = (e) => {
-        // Only allow zooming if book is open or generally user wants to zoom
         if (e.ctrlKey || isOpen) {
-            // e.preventDefault(); // Sometimes creates issues with scrolling, used carefully
         }
         const scaleAmount = -e.deltaY * 0.001;
         const newScale = Math.min(Math.max(0.5, transform.scale + scaleAmount), 4);
@@ -550,8 +570,6 @@ const CosmicBook = () => {
         setTransform({ x: 0, y: 0, scale: 1 });
     };
 
-    // --- CSS TRANSFORMS ---
-    // Combined logic: State-based Pan/Zoom + Book's internal 3D state
     const getOuterStyle = () => {
         return {
             transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`,
@@ -561,20 +579,15 @@ const CosmicBook = () => {
 
     const getBookInternalTransform = () => {
         if (isOpen) {
-            // OPEN STATE
-            // We removed the huge scale here to solve "Over Zoom". 
-            // We just center the spine. User controls scale via wrapper.
-            // translateX(50%) centers the spine.
             return `translateX(50%) rotateX(0deg) rotateY(0deg)`;
         } else {
-            // CLOSED STATE
             return `rotateX(10deg) rotateY(20deg)`;
         }
     };
 
-    // Dynamic Font Sizing
-    const getFontSizeTitle = () => isOpen ? (isMobile ? '1.25rem' : '2rem') : (isMobile ? '1.25rem' : '2rem');
-    const getFontSizeBody = () => isOpen ? (isMobile ? '0.85rem' : '1.1rem') : (isMobile ? '0.7rem' : '1rem');
+    // --- INCREASED FONT SIZES ---
+    const getFontSizeTitle = () => isOpen ? (isMobile ? '2rem' : '3.2rem') : (isMobile ? '1.5rem' : '2.2rem');
+    const getFontSizeBody = () => isOpen ? (isMobile ? '1.15rem' : '1.5rem') : (isMobile ? '0.8rem' : '1.1rem');
 
     return (
         <div 
@@ -588,7 +601,6 @@ const CosmicBook = () => {
         >
             <div className="absolute inset-0 bg-gradient-to-b from-[#0a0e27] via-[#0d1b2a] to-black -z-50 pointer-events-none"></div>
             
-            {/* Background Stars (Static relative to pan to create depth, or move them? lets keep static for simplicity) */}
             <div className="absolute inset-0 pointer-events-none -z-40">
                 {[...Array(30)].map((_, i) => (
                     <div key={i} className="star" style={{
@@ -602,7 +614,6 @@ const CosmicBook = () => {
                 ))}
             </div>
 
-            {/* HEADER - Fades out when open */}
             <div className={`pointer-events-none transition-all duration-1000 absolute top-[5vh] text-center z-10 w-full px-4 ${isOpen ? 'opacity-0 -translate-y-10' : 'opacity-100 translate-y-0'}`}>
                 <h1 className="text-4xl md:text-6xl lg:text-7xl font-black mb-2 relative">
                     <span className="cosmic-header-text inline-block break-words" data-text="The Cosmic Wisdom">
@@ -614,18 +625,14 @@ const CosmicBook = () => {
                 </p>
             </div>
 
-            {/* PAN-ZOOM WRAPPER */}
             <div 
                 className="w-full h-full flex items-center justify-center transition-transform duration-100 ease-out origin-center will-change-transform"
                 style={getOuterStyle()}
             >
-                {/* 3D SCENE CONTAINER */}
                 <div className="relative perspective-3000 flex items-center justify-center">
                     
-                    {/* BOOK CONTAINER */}
                     <div 
                         className={`relative transition-transform duration-[1400ms] ease-in-out transform-style-3d
-                            /* Initial Size Logic: Fit nicely within viewport without scaling yet */
                             ${isOpen ? 'w-[45vw] md:w-[38vw] aspect-[1/1.45]' : 'h-[50vh] md:h-[65vh] aspect-[1/1.5]'} 
                             ${!isOpen ? 'hover:scale-105' : ''}`}
                         onClick={!isOpen ? openBook : undefined}
@@ -640,41 +647,45 @@ const CosmicBook = () => {
                             <div className={`w-full h-full transition-opacity duration-500 ${isOpen && (!isFlipping || flipDirection === 'prev') ? 'opacity-100' : 'opacity-0'}`}>
                                 <div className="absolute inset-0 opacity-25 bg-[url('https://www.transparenttextures.com/patterns/old-mathematics.png')] pointer-events-none mix-blend-multiply"></div>
                                 
-                                <div className="p-3 md:p-8 h-full flex flex-col relative z-10 text-slate-800 book-open-text">
+                                {/* No Scrollbar Fix: 
+                                   Added "overflow-hidden" to prevent scrollbars.
+                                   Content split into multiple pages.
+                                */}
+                                <div className="h-full flex flex-col relative z-10 text-slate-800 book-open-text justify-start pt-8 pb-6 px-8 md:px-12 overflow-hidden">
                                     <div className="absolute top-2 right-2 md:top-4 md:right-4 text-amber-900/40 font-serif text-[10px] md:text-xs italic">
                                         {rightPage?.pageNumber}
                                     </div>
                                     
-                                    <div className="flex-1 flex flex-col justify-center items-center text-center px-1 md:px-2 overflow-y-auto hide-scrollbar">
+                                    <div className="flex-1 flex flex-col items-center text-center">
                                         {rightPage ? (
                                             <>
                                                 <h2
-                                                    className={`mb-2 md:mb-4 pb-2 border-b border-amber-700/40 ${
+                                                    className={`mb-4 md:mb-6 pb-2 border-b-2 border-amber-700/40 w-full ${
                                                         isEnglish ? 'english-heading' : 'scriptural-heading'
                                                     }`}
-                                                    style={{ fontSize: getFontSizeTitle() }}
+                                                    style={{ fontSize: getFontSizeTitle(), lineHeight: 1.2 }}
                                                 >
                                                     {rightPage.displayTitle}
                                                 </h2>
                                                 <p 
-                                                    className={`${isEnglish ? 'english-body' : 'scriptural-body'}`}
+                                                    className={`mt-2 ${isEnglish ? 'english-body' : 'scriptural-body'}`}
                                                     style={{ fontSize: getFontSizeBody() }}
                                                 >
                                                     {rightPage.displayText}
                                                 </p>
-                                                <div className="mt-2 md:mt-6 text-cyan-500/40 animate-pulse opacity-50">
+                                                <div className="mt-auto pt-4 text-cyan-500/40 animate-pulse opacity-50">
                                                     <Brain size="10%" style={{ minWidth: '24px', maxWidth: '40px' }} />
                                                 </div>
                                             </>
                                         ) : (
-                                            <div className="text-amber-600/50 text-xl md:text-2xl">{isEnglish ? "The End" : "समाप्त"}</div>
+                                            <div className="text-amber-600/50 text-xl md:text-2xl mt-10">{isEnglish ? "The End" : "समाप्त"}</div>
                                         )}
                                     </div>
 
                                     {/* NEXT BUTTON */}
                                     {currentPage < totalPages - 2 && (
                                         <div 
-                                            onMouseDown={(e) => e.stopPropagation()} // Prevent pan start
+                                            onMouseDown={(e) => e.stopPropagation()} 
                                             onClick={nextPage} 
                                             className="absolute bottom-0 right-0 p-3 md:p-6 cursor-pointer btn-premium rounded-tl-[1.5rem] md:rounded-tl-[2rem] group hover:bg-amber-900/5 transition-colors"
                                         >
@@ -691,7 +702,7 @@ const CosmicBook = () => {
                             )}
                         </div>
 
-                        {/* FLIP LAYERS (Next/Prev animations) */}
+                        {/* FLIP ANIMATION (NEXT) */}
                         {isFlipping && flipDirection === 'next' && (
                             <div className="absolute inset-0 w-full h-full ancient-page-bg rounded-r-xl book-shadow-ultra z-20 origin-left transform-style-3d border-l-2 border-amber-900/20"
                                  style={{ animation: 'flipLeftSmoother 0.9s forwards cubic-bezier(0.4, 0.0, 0.2, 1)' }}>
@@ -708,6 +719,7 @@ const CosmicBook = () => {
                             </div>
                         )}
 
+                        {/* FLIP ANIMATION (PREV) */}
                         {isFlipping && flipDirection === 'prev' && (
                             <div className="absolute inset-0 w-full h-full ancient-page-bg rounded-l-xl book-shadow-ultra z-20 origin-right transform-style-3d border-r-2 border-amber-900/20"
                                  style={{ left: '-100%', animation: 'flipRightSmoother 0.9s forwards cubic-bezier(0.4, 0.0, 0.2, 1)' }}>
@@ -751,13 +763,15 @@ const CosmicBook = () => {
                                         <div className="cosmic-orb"><InfinityIcon className="cosmic-icon slow-spin w-5 h-5 md:w-7 md:h-7" /></div>
                                     </div>
 
-                                    <div className="text-center glass-morph p-4 md:p-8 rounded-2xl transform hover:scale-105 transition-all duration-500 w-full max-w-[90%]">
-                                        <h1 className="text-5xl md:text-8xl font-black mb-2 md:mb-4" style={{
+                                    {/* FIXED TITLE SIZE FOR COVER TO PREVENT CLIPPING */}
+                                    <div className="text-center glass-morph p-4 md:p-8 rounded-2xl transform hover:scale-105 transition-all duration-500 w-full max-w-[95%] overflow-visible">
+                                        <h1 className="text-4xl md:text-6xl font-black mb-2 md:mb-4 whitespace-nowrap" style={{
                                             background: 'linear-gradient(135deg, #fef3c7 0%, #fbbf24 30%, #f59e0b 60%, #d97706 100%)',
                                             WebkitBackgroundClip: 'text',
                                             backgroundClip: 'text',
                                             WebkitTextFillColor: 'transparent',
-                                            filter: 'drop-shadow(0 4px 20px rgba(251, 191, 36, 0.6))'
+                                            filter: 'drop-shadow(0 4px 20px rgba(251, 191, 36, 0.6))',
+                                            lineHeight: '1.2'
                                         }}>
                                             {isEnglish ? "TRUTH" : "सत्य"}
                                         </h1>
@@ -778,41 +792,42 @@ const CosmicBook = () => {
                                 <div className="ancient-page-bg rounded-l-xl shadow-inner flex flex-col overflow-hidden border-r-2 border-r-amber-900/30 ambient-shadow h-full">
                                     <div className="absolute inset-0 opacity-25 bg-[url('https://www.transparenttextures.com/patterns/old-mathematics.png')] pointer-events-none mix-blend-multiply"></div>
 
-                                    <div className="p-3 md:p-8 h-full flex flex-col relative z-10 book-open-text">
+                                    {/* SAME PADDING LOGIC FOR LEFT PAGE */}
+                                    <div className="h-full flex flex-col relative z-10 text-slate-800 book-open-text justify-start pt-8 pb-6 px-8 md:px-12 overflow-hidden">
                                         <div className="absolute top-2 left-2 md:top-4 md:left-4 text-amber-900/40 font-serif text-[10px] md:text-xs italic">
                                             {leftPage?.pageNumber}
                                         </div>
 
-                                        <div className="flex-1 flex flex-col justify-center items-center text-center px-1 md:px-2 overflow-y-auto hide-scrollbar">
+                                        <div className="flex-1 flex flex-col items-center text-center">
                                             {leftPage ? (
                                                 <>
                                                     <h2
-                                                        className={`mb-2 md:mb-4 pb-2 border-b border-amber-700/40 ${
+                                                        className={`mb-4 md:mb-6 pb-2 border-b-2 border-amber-700/40 w-full ${
                                                             isEnglish ? 'english-heading' : 'scriptural-heading'
                                                         }`}
-                                                        style={{ fontSize: getFontSizeTitle() }}
+                                                        style={{ fontSize: getFontSizeTitle(), lineHeight: 1.2 }}
                                                     >
                                                         {leftPage.displayTitle}
                                                     </h2>
                                                     <p 
-                                                        className={`${isEnglish ? 'english-body' : 'scriptural-body'}`}
+                                                        className={`mt-2 ${isEnglish ? 'english-body' : 'scriptural-body'}`}
                                                         style={{ fontSize: getFontSizeBody() }}
                                                     >
                                                         {leftPage.displayText}
                                                     </p>
-                                                    <div className="mt-2 md:mt-6 text-cyan-500/40">
+                                                    <div className="mt-auto pt-4 text-cyan-500/40">
                                                         <Atom size="10%" style={{ minWidth: '24px', maxWidth: '40px' }} />
                                                     </div>
                                                 </>
                                             ) : (
-                                                <div className="text-amber-900/50 text-xl md:text-2xl">{isEnglish ? "Table of Contents" : "विषय सूची"}</div>
+                                                <div className="text-amber-900/50 text-xl md:text-2xl mt-10">{isEnglish ? "Table of Contents" : "विषय सूची"}</div>
                                             )}
                                         </div>
 
                                         {/* PREVIOUS BUTTON */}
                                         {currentPage > 0 && (
                                             <div 
-                                                onMouseDown={(e) => e.stopPropagation()} // Prevent pan start
+                                                onMouseDown={(e) => e.stopPropagation()} 
                                                 onClick={prevPage} 
                                                 className="absolute bottom-0 left-0 p-3 md:p-6 cursor-pointer btn-premium rounded-tr-[1.5rem] md:rounded-tr-[2rem] group hover:bg-amber-900/5 transition-colors"
                                             >
@@ -834,9 +849,7 @@ const CosmicBook = () => {
                 </div>
             </div>
 
-            {/* UI CONTROLS - FIXED ON SCREEN */}
             <div className="fixed bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-4 z-50">
-                {/* Zoom Controls */}
                 <div className="glass-morph p-2 rounded-full flex items-center gap-2">
                     <button onClick={() => manualZoom(-0.2)} className="p-2 hover:bg-white/10 rounded-full text-white/80 hover:text-white transition-colors">
                         <ZoomOut size={20} />
