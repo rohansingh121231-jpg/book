@@ -1,65 +1,254 @@
- <!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Cosmic Wisdom - Science, Philosophy & Religion</title>
+    <title>The Cosmic Wisdom - विज्ञान, दर्शन और धर्म</title>
     
-    <!-- React & ReactDOM (via CDN) -->
+    <!-- React & ReactDOM -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    
-    <!-- Babel (Updated to modern version to fix "Blue Screen" error) -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Google Fonts: Serif for Book feel -->
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
+    <!-- Enhanced Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
 
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
             font-family: 'Merriweather', serif;
-            background-color: #020617; /* slate-950 */
-            color: #e2e8f0; /* slate-200 */
-        }
-        h1, h2, h3 {
-            font-family: 'Cinzel', serif;
+            background: radial-gradient(ellipse at bottom, #0d1b2a 0%, #000000 100%);
+            color: #e2e8f0;
+            overflow-x: hidden;
         }
         
-        /* Custom Animations */
-        @keyframes flipLeft {
-          0% { transform: rotateY(0deg); z-index: 50; }
-          50% { z-index: 50; }
-          100% { transform: rotateY(-180deg); z-index: 50; }
-        }
-        @keyframes float {
-          0%, 100% { transform: translateY(0px) rotateX(0deg) rotateY(0deg); }
-          50% { transform: translateY(-15px) rotateX(2deg) rotateY(-2deg); }
-        }
-        .animate-float {
-          animation: float 6s ease-in-out infinite;
-        }
-        .animate-spin-slow {
-          animation: spin 12s linear infinite;
-        }
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        /* Hide scrollbar */
-        ::-webkit-scrollbar {
-            display: none;
+        h1, h2, h3 { font-family: 'Cinzel', serif; }
+
+        /* ========== ULTRA REALISTIC BOOK STYLES ========== */
+        
+        /* Ancient Parchment with Realistic Texture */
+        .ancient-page-bg {
+            background: linear-gradient(135deg, #f4ecd8 0%, #e8dcc0 50%, #d4c4a8 100%);
+            position: relative;
         }
         
+        .ancient-page-bg::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: 
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(139, 115, 85, 0.03) 2px, rgba(139, 115, 85, 0.03) 4px),
+                repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(139, 115, 85, 0.03) 2px, rgba(139, 115, 85, 0.03) 4px),
+                url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='2.5' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.15'/%3E%3C/svg%3E");
+            opacity: 0.8;
+            pointer-events: none;
+            border-radius: inherit;
+        }
+
+        /* Realistic Book Spine with Leather Texture */
+        .book-spine {
+            background: linear-gradient(90deg, #3a2817 0%, #4a3525 20%, #5a4433 50%, #4a3525 80%, #3a2817 100%);
+            box-shadow: 
+                inset -2px 0 8px rgba(0,0,0,0.5),
+                inset 2px 0 8px rgba(0,0,0,0.3),
+                inset 0 0 2px rgba(139,115,85,0.2);
+        }
+
+        /* Ultra Realistic Shadows (Layered) */
+        .book-shadow-ultra {
+            box-shadow:
+                0 2px 4px rgba(0,0,0,0.1),
+                0 4px 8px rgba(0,0,0,0.1),
+                0 8px 16px rgba(0,0,0,0.1),
+                0 16px 32px rgba(0,0,0,0.15),
+                0 32px 64px rgba(0,0,0,0.2),
+                0 48px 96px rgba(0,0,0,0.25);
+        }
+
+        /* Enhanced Cosmic Header with Depth */
+        .cosmic-header-text {
+            background: linear-gradient(135deg, #67e8f9 0%, #06b6d4 50%, #0891b2 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 8px rgba(34, 211, 238, 0.6)) 
+                    drop-shadow(0 2px 4px rgba(8, 145, 178, 0.4))
+                    drop-shadow(0 4px 12px rgba(6, 182, 212, 0.3));
+            animation: cosmicPulseEnhanced 3s ease-in-out infinite alternate;
+            position: relative;
+        }
+
+        .cosmic-header-text::before {
+            content: attr(data-text);
+            position: absolute;
+            left: 0;
+            top: 0;
+            z-index: -1;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transform: translate(2px, 2px);
+            filter: blur(1px);
+        }
+
+        @keyframes cosmicPulseEnhanced {
+            0% { 
+                filter: drop-shadow(0 0 5px rgba(34, 211, 238, 0.4)) 
+                        drop-shadow(0 2px 4px rgba(8, 145, 178, 0.3)); 
+            }
+            100% { 
+                filter: drop-shadow(0 0 20px rgba(34, 211, 238, 0.8)) 
+                        drop-shadow(0 4px 12px rgba(6, 182, 212, 0.6))
+                        drop-shadow(0 8px 24px rgba(6, 182, 212, 0.4)); 
+            }
+        }
+
+        /* Premium Golden Religious Glow (Enhanced) */
+        .golden-glow-text {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 3px rgba(251, 191, 36, 0.8))
+                    drop-shadow(0 0 8px rgba(245, 158, 11, 0.6))
+                    drop-shadow(0 0 16px rgba(217, 119, 6, 0.4));
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            animation: holyGoldPulseEnhanced 4s infinite alternate;
+            text-shadow: 1px 1px 1px rgba(120, 53, 15, 0.3);
+        }
+
+        @keyframes holyGoldPulseEnhanced {
+            0% { 
+                filter: drop-shadow(0 0 2px rgba(251, 191, 36, 0.6))
+                        drop-shadow(0 0 6px rgba(245, 158, 11, 0.4)); 
+            }
+            100% { 
+                filter: drop-shadow(0 0 6px rgba(254, 240, 138, 1))
+                        drop-shadow(0 0 20px rgba(250, 204, 21, 0.8))
+                        drop-shadow(0 0 32px rgba(234, 179, 8, 0.6))
+                        drop-shadow(0 0 48px rgba(202, 138, 4, 0.4)); 
+            }
+        }
+
+        /* Glass Morphism for Modern UI Elements */
+        .glass-morph {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px) saturate(180%);
+            -webkit-backdrop-filter: blur(12px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 
+                0 8px 32px 0 rgba(0, 0, 0, 0.37),
+                inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+        }
+
+        /* Animated Starfield Background */
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+        
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle var(--duration, 3s) ease-in-out infinite;
+            animation-delay: var(--delay, 0s);
+        }
+
+        /* Floating Dust Particles */
+        @keyframes float-dust {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)) rotate(360deg); opacity: 0; }
+        }
+
+        .dust-particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: float-dust var(--duration) linear infinite;
+            animation-delay: var(--delay);
+        }
+
+        /* Enhanced Page Flip Animation */
+        @keyframes flipLeftEnhanced {
+            0% { 
+                transform: rotateY(0deg) translateZ(0px); 
+                box-shadow: 0 0 20px rgba(0,0,0,0.2);
+            }
+            50% { 
+                transform: rotateY(-90deg) translateZ(30px);
+                box-shadow: -10px 0 40px rgba(0,0,0,0.5);
+            }
+            100% { 
+                transform: rotateY(-180deg) translateZ(0px);
+                box-shadow: 0 0 20px rgba(0,0,0,0.2);
+            }
+        }
+
         /* 3D Transform Utilities */
-        .perspective-2000 { perspective: 2000px; }
+        .perspective-3000 { perspective: 3000px; }
         .transform-style-3d { transform-style: preserve-3d; }
-        .backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+        .backface-hidden { backface-visibility: hidden; }
         .rotate-y-180 { transform: rotateY(180deg); }
-        .-rotate-y-180 { transform: rotateY(-180deg); }
-        .origin-left { transform-origin: left; }
+
+        /* Embossed Text Effect */
+        .embossed-text {
+            text-shadow: 
+                1px 1px 1px rgba(255,255,255,0.6),
+                -1px -1px 1px rgba(0,0,0,0.3);
+        }
+
+        /* Premium Button Hover Effects */
+        .btn-premium {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .btn-premium::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn-premium:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-premium:active {
+            transform: scale(0.95);
+        }
+
+        /* Realistic Page Edge with Gilding */
+        .page-edge-gilt {
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(212, 175, 55, 0.3) 20%,
+                rgba(255, 215, 0, 0.5) 50%,
+                rgba(212, 175, 55, 0.3) 80%,
+                transparent 100%);
+        }
+
+        /* Ambient Occlusion Effect */
+        .ambient-shadow {
+            box-shadow: inset 0 0 60px rgba(0,0,0,0.15);
+        }
     </style>
 </head>
 <body>
@@ -68,20 +257,11 @@
     <script type="text/babel">
         const { useState, useEffect } = React;
 
-        // --- ICONS COMPONENTS ---
+        // ========== ICON COMPONENTS ==========
         const IconBase = ({ children, size = 24, className = "" }) => (
-            <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                width={size} 
-                height={size} 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
-                strokeWidth="2" 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                className={className}
-            >
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" 
+                 fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" 
+                 strokeLinejoin="round" className={className}>
                 {children}
             </svg>
         );
@@ -105,23 +285,16 @@
             <IconBase {...props}>
                 <path d="M8 17a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2Z" />
                 <path d="M8 21h12a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2H8" />
-                <path d="M16 8h4" />
-                <path d="M22 10v1a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V5a2 2 0 0 0-2-2 2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-5" />
+                <path d="M16 8h4" /><path d="M22 10v1a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V5a2 2 0 0 0-2-2 2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-5" />
             </IconBase>
         );
 
         const MoveRight = (props) => (
-            <IconBase {...props}>
-                <path d="M18 8L22 12L18 16" />
-                <path d="M2 12H22" />
-            </IconBase>
+            <IconBase {...props}><path d="M18 8L22 12L18 16" /><path d="M2 12H22" /></IconBase>
         );
 
         const MoveLeft = (props) => (
-            <IconBase {...props}>
-                <path d="M6 8L2 12L6 16" />
-                <path d="M2 12H22" />
-            </IconBase>
+            <IconBase {...props}><path d="M6 8L2 12L6 16" /><path d="M2 12H22" /></IconBase>
         );
 
         const InfinityIcon = (props) => (
@@ -143,64 +316,38 @@
             </IconBase>
         );
 
-
-        // --- MAIN APP COMPONENT ---
+        // ========== MAIN APP ==========
         const CosmicBook = () => {
             const [isOpen, setIsOpen] = useState(false);
             const [currentPage, setCurrentPage] = useState(0);
             const [isFlipping, setIsFlipping] = useState(false);
             const [videoError, setVideoError] = useState(false);
+            const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
-            // --- CONTENT DATA ---
+            // Mouse parallax effect
+            useEffect(() => {
+                const handleMouseMove = (e) => {
+                    setMousePos({ x: e.clientX, y: e.clientY });
+                };
+                window.addEventListener('mousemove', handleMouseMove);
+                return () => window.removeEventListener('mousemove', handleMouseMove);
+            }, []);
+
             const bookContent = [
-                {
-                    title: "Prastavana (Introduction)",
-                    text: "Is pustak mein hum brahmand ke un rahasyon ko suljhane ki koshish karenge jahan Vigyan, Darshan aur Dharm ek dusre se milte hain. Satya ek hai, bas dekhne ke nazariye alag hain.",
-                    pageNumber: 1
-                },
-                {
-                    title: "Vigyan (Science)",
-                    text: "Brahmand ki utpatti Big Bang se hui ya kisi aur shakti se? Quantum mechanics aur aatma ka kya sambandh hai? Vigyan humein 'kaise' ka uttar deta hai, padarth aur urja ke niyam samjhata hai.",
-                    pageNumber: 2
-                },
-                {
-                    title: "Darshan (Philosophy)",
-                    text: "Hum kaun hain? Humara uddeshya kya hai? Philosophy humein 'kyun' ka uttar khojne mein madad karti hai. Ye tark, chintan aur aatma-nirikshan ka marg hai.",
-                    pageNumber: 3
-                },
-                {
-                    title: "Dharm (Religion)",
-                    text: "Vishwaas aur aastha ki shakti. Kya koi paralaukik shakti humein chalati hai? Dharm humein anushasan, karuna aur antarik shanti ka marg dikhata hai.",
-                    pageNumber: 4
-                },
-                {
-                    title: "Brahmaand (The Cosmos)",
-                    text: "Tare, aakashgangayein aur black holes. Ye sab ek hi cosmic dance ka hissa hain. Hum bhi usi stardust se bane hain jisse tare bane hain.",
-                    pageNumber: 5
-                },
-                {
-                    title: "Nishkarsh (Conclusion)",
-                    text: "Ant mein, ye teeno raaste ek hi sachai ki taraf jaate hain. Vigyan dimag hai, Darshan drishti hai, aur Dharm dil hai. Teeno ka santulan hi jeevan hai.",
-                    pageNumber: 6
-                },
-                {
-                    title: "Antim Panna",
-                    text: "Is yatra mein shamil hone ke liye dhanyavaad. Apna nazariya badlein, duniya badal jayegi.",
-                    pageNumber: 7
-                },
-                {
-                    title: "Samapt",
-                    text: "The End.",
-                    pageNumber: 8
-                }
+                { title: "प्रस्तावना", text: "इस पुस्तक में हम ब्रह्मांड के उन रहस्यों को सुलझाने की कोशिश करेंगे जहां विज्ञान, दर्शन और धर्म एक दूसरे से मिलते हैं। सत्य एक है, बस देखने के नजरिये अलग हैं।", pageNumber: 1 },
+                { title: "विज्ञान", text: "ब्रह्मांड की उत्पत्ति Big Bang से हुई या किसी और शक्ति से? Quantum mechanics और आत्मा का क्या संबंध है? विज्ञान हमें 'कैसे' का उत्तर देता है, पदार्थ और ऊर्जा के नियम समझाता है।", pageNumber: 2 },
+                { title: "दर्शन", text: "हम कौन हैं? हमारा उद्देश्य क्या है? Philosophy हमें 'क्यूं' का उत्तर खोजने में मदद करती है। ये तर्क, चिंतन और आत्म-निरीक्षण का मार्ग है।", pageNumber: 3 },
+                { title: "धर्म", text: "विश्वास और आस्था की शक्ति। क्या कोई पारलौकिक शक्ति हमें चलाती है? धर्म हमें अनुशासन, करुणा और आंतरिक शांति का मार्ग दिखाता है।", pageNumber: 4 },
+                { title: "ब्रह्माण्ड", text: "तारे, आकाशगंगाएं और black holes। ये सब एक ही cosmic dance का हिस्सा हैं। हम भी उसी stardust से बने हैं जिससे तारे बने हैं।", pageNumber: 5 },
+                { title: "निष्कर्ष", text: "अंत में, ये तीनों रास्ते एक ही सचाई की तरफ जाते हैं। विज्ञान दिमाग है, दर्शन दृष्टि है, और धर्म दिल है। तीनों का संतुलन ही जीवन है।", pageNumber: 6 },
+                { title: "अंतिम पन्ना", text: "इस यात्रा में शामिल होने के लिए धन्यवाद। अपना नजरिया बदलें, दुनिया बदल जाएगी।", pageNumber: 7 },
+                { title: "समाप्त", text: "The End.", pageNumber: 8 }
             ];
 
             const totalPages = bookContent.length;
             const videoUrl = "https://drive.google.com/uc?export=download&id=1SyFrFkuOFO2Zq5DVppHERPmwDy17zBVd";
 
-            // --- HANDLERS ---
             const openBook = () => setIsOpen(true);
-
             const closeBook = (e) => {
                 e.stopPropagation();
                 setIsOpen(false);
@@ -212,209 +359,274 @@
                 if (currentPage < totalPages - 2 && !isFlipping) {
                     setIsFlipping(true);
                     setTimeout(() => {
-                        setCurrentPage(currentPage + 2);
+                        setCurrentPage((prev) => prev + 2);
                         setIsFlipping(false);
-                    }, 600);
+                    }, 800);
                 }
             };
 
             const prevPage = (e) => {
                 e.stopPropagation();
                 if (currentPage > 0 && !isFlipping) {
-                    setCurrentPage(currentPage - 2);
+                    setCurrentPage((prev) => prev - 2);
                 }
             };
 
             const leftPageContent = bookContent[currentPage];
             const rightPageContent = bookContent[currentPage + 1];
-            const nextLeftContent = bookContent[currentPage + 2];
+
+            // Parallax offset
+            const parallaxX = (mousePos.x - window.innerWidth / 2) / 50;
+            const parallaxY = (mousePos.y - window.innerHeight / 2) / 50;
 
             return (
                 <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 overflow-hidden relative">
                     
-                    {/* --- BACKGROUND AMBIENCE --- */}
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-indigo-900/40 via-slate-950 to-black pointer-events-none"></div>
+                    {/* ========== ENHANCED BACKGROUND ========== */}
+                    <div className="absolute inset-0 bg-gradient-to-b from-[#0a0e27] via-[#0d1b2a] to-black"></div>
                     
-                    {/* Stars and Sparkles */}
-                    <div className="absolute top-10 left-10 text-yellow-100/20 animate-pulse"><Star size={24} /></div>
-                    <div className="absolute top-20 right-40 text-blue-100/10 animate-pulse delay-300"><Star size={16} /></div>
-                    <div className="absolute bottom-20 right-20 text-blue-300/20 animate-pulse delay-75"><Sparkles size={32} /></div>
-                    
-                    {/* Large Glows */}
-                    <div className="absolute top-1/2 left-1/4 w-96 h-96 bg-blue-600/5 rounded-full blur-3xl pointer-events-none"></div>
-                    <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-purple-600/5 rounded-full blur-3xl pointer-events-none"></div>
-                    
-                    {/* --- HEADER --- */}
+                    {/* Animated Starfield */}
+                    {[...Array(50)].map((_, i) => (
+                        <div key={i} className="star" style={{
+                            left: `${Math.random() * 100}%`,
+                            top: `${Math.random() * 100}%`,
+                            width: `${Math.random() * 3 + 1}px`,
+                            height: `${Math.random() * 3 + 1}px`,
+                            '--duration': `${Math.random() * 4 + 2}s`,
+                            '--delay': `${Math.random() * 5}s`
+                        }} />
+                    ))}
+
+                    {/* Floating Dust Particles */}
+                    {[...Array(20)].map((_, i) => (
+                        <div key={`dust-${i}`} className="dust-particle" style={{
+                            left: `${Math.random() * 100}%`,
+                            top: `${Math.random() * 100}%`,
+                            '--tx': `${(Math.random() - 0.5) * 200}px`,
+                            '--ty': `${(Math.random() - 0.5) * 200}px`,
+                            '--duration': `${Math.random() * 15 + 10}s`,
+                            '--delay': `${Math.random() * 5}s`
+                        }} />
+                    ))}
+
+                    {/* Gradient Orbs */}
+                    <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-[120px] animate-pulse" 
+                         style={{ transform: `translate(${parallaxX}px, ${parallaxY}px)` }}></div>
+                    <div className="absolute bottom-1/3 right-1/3 w-80 h-80 bg-purple-600/10 rounded-full blur-[100px] animate-pulse delay-75"
+                         style={{ transform: `translate(${-parallaxX}px, ${-parallaxY}px)` }}></div>
+                    <div className="absolute top-1/2 right-1/4 w-64 h-64 bg-cyan-500/5 rounded-full blur-[80px] animate-pulse delay-150"></div>
+
+                    {/* Decorative Stars */}
+                    <div className="absolute top-10 left-10 text-yellow-100/30 animate-pulse" 
+                         style={{ transform: `translate(${parallaxX * 0.5}px, ${parallaxY * 0.5}px)` }}>
+                        <Star size={28} />
+                    </div>
+                    <div className="absolute top-20 right-32 text-blue-200/20 animate-pulse delay-300">
+                        <Star size={20} />
+                    </div>
+                    <div className="absolute bottom-24 right-16 text-purple-300/25 animate-pulse delay-150">
+                        <Sparkles size={36} />
+                    </div>
+                    <div className="absolute bottom-32 left-24 text-cyan-300/20 animate-pulse delay-500">
+                        <Sparkles size={24} />
+                    </div>
+
+                    {/* ========== HEADER ========== */}
                     <div className={`transition-all duration-1000 absolute top-10 text-center z-10 ${isOpen ? 'opacity-0 -translate-y-10 pointer-events-none' : 'opacity-100 translate-y-0'}`}>
-                        <h1 className="text-4xl md:text-6xl text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 to-blue-300 font-bold mb-3 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
-                            The Cosmic Wisdom
+                        <h1 className="text-5xl md:text-7xl font-black mb-4 relative">
+                            <span className="cosmic-header-text inline-block" data-text="The Cosmic Wisdom">
+                                The Cosmic Wisdom
+                            </span>
                         </h1>
-                        <p className="text-blue-200/50 text-xs md:text-sm uppercase tracking-[0.4em] animate-pulse">
-                            Click the Book to Open
+                        <div className="h-1 w-64 mx-auto bg-gradient-to-r from-transparent via-cyan-400 to-transparent mb-3 rounded-full"></div>
+                        <p className="text-blue-200/60 text-xs md:text-sm uppercase tracking-[0.5em] animate-pulse font-light">
+                            पुस्तक खोलने के लिए क्लिक करें
                         </p>
                     </div>
 
-                    {/* --- 3D SCENE CONTAINER --- */}
-                    <div className="relative perspective-2000 w-full max-w-[1000px] h-[600px] flex items-center justify-center z-20">
+                    {/* ========== 3D BOOK SCENE ========== */}
+                    <div className="relative perspective-3000 w-full max-w-[1100px] h-[650px] flex items-center justify-center z-20">
                         
-                        {/* --- BOOK MAIN WRAPPER --- */}
                         <div 
-                            className={`relative w-[300px] md:w-[380px] h-[480px] md:h-[550px] transition-all duration-[1200ms] cubic-bezier(0.25, 0.46, 0.45, 0.94) transform-style-3d cursor-pointer
-                                ${isOpen ? 'translate-x-[150px] md:translate-x-[190px]' : 'hover:scale-105 animate-float'}
-                            `}
+                            className={`relative w-[320px] md:w-[400px] h-[500px] md:h-[580px] transition-all duration-[1400ms] ease-out transform-style-3d cursor-pointer
+                                ${isOpen ? '' : 'hover:scale-105'}`}
                             onClick={!isOpen ? openBook : undefined}
+                            style={{
+                                transform: isOpen 
+                                    ? 'translateX(0)' 
+                                    : `translateY(${parallaxY * 0.3}px) rotateX(${parallaxY * 0.2}deg) rotateY(${parallaxX * 0.2}deg) scale(1.05)`,
+                                transition: 'all 1.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+                            }}
                         >
                             
-                            {/* LAYER 1: BACK PAGES (Right Page) */}
-                            <div 
-                                className={`absolute inset-0 w-full h-full bg-[#fdfbf7] rounded-r-lg shadow-[20px_20px_60px_rgba(0,0,0,0.5)] z-0 flex flex-col overflow-hidden border-l border-gray-300 transition-transform duration-[1200ms]
-                                    ${isOpen ? 'scale-100' : 'scale-[0.96] translate-x-1'} 
-                                `}
-                            >
-                                <div className={`w-full h-full transition-opacity duration-500 delay-300 ${isOpen ? 'opacity-100' : 'opacity-0'}`}>
-                                    <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')] pointer-events-none"></div>
+                            {/* ========== RIGHT PAGE (Back Layer) ========== */}
+                            <div className={`absolute inset-0 w-full h-full ancient-page-bg rounded-r-xl book-shadow-ultra z-0 flex flex-col overflow-hidden border-l-2 border-amber-900/30 transition-all duration-[1400ms] ambient-shadow
+                                ${isOpen ? 'scale-100' : 'scale-[0.97] translate-x-1'}`}>
+                                
+                                <div className={`w-full h-full transition-opacity duration-600 delay-400 ${isOpen ? 'opacity-100' : 'opacity-0'}`}>
+                                    <div className="absolute inset-0 opacity-25 bg-[url('https://www.transparenttextures.com/patterns/old-mathematics.png')] pointer-events-none mix-blend-multiply"></div>
                                     
-                                    <div className="p-8 h-full flex flex-col relative z-10 text-slate-800">
-                                        <div className="absolute top-4 right-4 text-gray-400 font-sans text-xs">{rightPageContent?.pageNumber}</div>
+                                    <div className="p-10 h-full flex flex-col relative z-10 text-slate-800">
+                                        <div className="absolute top-6 right-6 text-amber-900/40 font-serif text-sm italic embossed-text">
+                                            {rightPageContent?.pageNumber}
+                                        </div>
                                         
-                                        <div className="flex-1 flex flex-col justify-center items-center text-center">
+                                        <div className="flex-1 flex flex-col justify-center items-center text-center px-4">
                                             {rightPageContent ? (
-                                                <React.Fragment>
-                                                    <h2 className="text-2xl font-bold text-indigo-900 mb-6 border-b-2 border-yellow-500/30 pb-2">{rightPageContent.title}</h2>
-                                                    <p className="text-lg text-gray-800 leading-relaxed font-medium">{rightPageContent.text}</p>
-                                                    <div className="mt-8 text-yellow-600/30 animate-pulse"><Brain size={48} /></div>
-                                                </React.Fragment>
+                                                <>
+                                                    <h2 className="text-3xl cosmic-header-text mb-8 pb-3 border-b-2 border-cyan-400/40" data-text={rightPageContent.title}>
+                                                        {rightPageContent.title}
+                                                    </h2>
+                                                    <p className="text-xl golden-glow-text leading-relaxed font-medium">
+                                                        {rightPageContent.text}
+                                                    </p>
+                                                    <div className="mt-10 text-cyan-500/40 animate-pulse">
+                                                        <Brain size={56} />
+                                                    </div>
+                                                </>
                                             ) : (
-                                                <div className="text-gray-300">End</div>
+                                                <div className="text-amber-600/50 golden-glow-text text-2xl">समाप्त</div>
                                             )}
                                         </div>
 
-                                        <div onClick={nextPage} className="absolute bottom-0 right-0 p-6 cursor-pointer hover:bg-yellow-500/10 transition-colors rounded-tl-3xl group">
-                                            <div className="flex items-center gap-2 text-yellow-700 font-bold text-sm">
-                                                NEXT <MoveRight size={20} className="group-hover:translate-x-1 transition-transform"/>
+                                        {currentPage < totalPages - 2 && (
+                                            <div onClick={nextPage} 
+                                                 className="absolute bottom-0 right-0 p-8 cursor-pointer btn-premium rounded-tl-[3rem] group">
+                                                <div className="flex items-center gap-2 text-amber-900 font-bold text-base relative z-10">
+                                                    अगला <MoveRight size={22} className="group-hover:translate-x-2 transition-transform duration-300"/>
+                                                </div>
                                             </div>
-                                        </div>
+                                        )}
                                     </div>
                                 </div>
                                 
+                                {/* Page Edge Gilding */}
                                 {!isOpen && (
-                                    <div className="absolute top-1 bottom-1 right-0 w-4 bg-gradient-to-l from-[#e3e0d6] to-[#fffefb] border-l border-gray-300 shadow-inner">
-                                        <div className="w-full h-full" style={{backgroundImage: 'linear-gradient(to bottom, transparent 2px, #d1d5db 3px)', backgroundSize: '100% 4px'}}></div>
-                                    </div>
+                                    <div className="absolute top-2 bottom-2 right-0 w-1 page-edge-gilt rounded-r-lg"></div>
                                 )}
                             </div>
 
-
-                            {/* LAYER 2: FLIPPING PAGE */}
+                            {/* ========== FLIPPING PAGE ANIMATION ========== */}
                             {isFlipping && (
-                                <div 
-                                    className="absolute inset-0 w-full h-full bg-[#fdfbf7] rounded-r-lg shadow-xl z-20 origin-left animate-page-flip transform-style-3d border-l border-gray-300"
-                                    style={{ animation: 'flipLeft 1.2s forwards ease-in-out' }}
-                                >
-                                    <div className="absolute inset-0 backface-hidden p-8 flex flex-col items-center justify-center bg-[#fdfbf7] text-slate-800">
-                                        <h2 className="text-xl text-gray-400">{rightPageContent?.title}</h2>
-                                    </div>
-                                    <div className="absolute inset-0 backface-hidden rotate-y-180 bg-[#fdfbf7] p-8 flex flex-col items-center justify-center shadow-inner rounded-l-lg text-slate-800">
-                                        <h2 className="text-xl text-indigo-900">{nextLeftContent?.title}</h2>
+                                <div className="absolute inset-0 w-full h-full ancient-page-bg rounded-r-xl book-shadow-ultra z-20 origin-left transform-style-3d border-l-2 border-amber-900/20"
+                                     style={{ animation: 'flipLeftEnhanced 1.6s forwards cubic-bezier(0.645, 0.045, 0.355, 1)' }}>
+                                    <div className="absolute inset-0 backface-hidden p-10 flex flex-col items-center justify-center ancient-page-bg ambient-shadow">
+                                        <h2 className="text-2xl text-amber-900/50 embossed-text">{rightPageContent?.title}</h2>
                                     </div>
                                 </div>
                             )}
 
-
-                            {/* LAYER 3: FRONT COVER (Video) */}
-                            <div 
-                                className={`absolute inset-0 w-full h-full origin-left transition-transform duration-[1200ms] cubic-bezier(0.645, 0.045, 0.355, 1) transform-style-3d z-30 rounded-r-lg
-                                    ${isOpen ? '-rotate-y-180' : 'rotate-y-0'}
-                                `}
-                                style={{ transform: isOpen ? 'rotateY(-180deg)' : 'rotateY(0deg) translateZ(10px)' }} 
-                            >
-                                <div className="absolute inset-0 backface-hidden z-20 rounded-r-lg shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden border-l-4 border-l-yellow-600/80 bg-black">
+                            {/* ========== FRONT COVER (Video) ========== */}
+                            <div className={`absolute inset-0 w-full h-full origin-left transition-all duration-[1400ms] transform-style-3d z-30 rounded-r-xl book-shadow-ultra
+                                ${isOpen ? '-rotate-y-180' : 'rotate-y-0'}`}
+                                 style={{ 
+                                     transform: isOpen ? 'rotateY(-180deg)' : 'rotateY(0deg) translateZ(20px)',
+                                     transitionTimingFunction: 'cubic-bezier(0.645, 0.045, 0.355, 1)'
+                                 }}>
+                                
+                                {/* Front Face */}
+                                <div className="absolute inset-0 backface-hidden z-20 rounded-r-xl overflow-hidden border-l-[6px] border-l-amber-600 bg-black book-shadow-ultra">
                                     
-                                    {/* Video / Fallback */}
                                     {!videoError ? (
-                                        <video 
-                                            src={videoUrl}
-                                            className="absolute inset-0 w-full h-full object-cover rounded-r-lg" 
-                                            autoPlay loop muted playsInline
-                                            onError={() => setVideoError(true)}
-                                        />
+                                        <video src={videoUrl} className="absolute inset-0 w-full h-full object-cover" 
+                                               autoPlay loop muted playsInline onError={() => setVideoError(true)} />
                                     ) : (
-                                        <div className="absolute inset-0 w-full h-full bg-slate-900 flex flex-col items-center justify-center">
-                                            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-50 animate-pulse"></div>
-                                            <div className="w-64 h-64 bg-blue-500/20 rounded-full blur-[80px] animate-pulse"></div>
+                                        <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-slate-900 via-blue-950 to-black flex items-center justify-center">
+                                            <div className="w-72 h-72 bg-blue-500/20 rounded-full blur-[100px] animate-pulse"></div>
                                         </div>
                                     )}
                                     
-                                    {/* Overlays */}
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-black/40 pointer-events-none z-20"></div>
-                                    <div className="absolute inset-0 border-[4px] border-yellow-500/30 rounded-r-lg pointer-events-none z-30"></div>
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-black/50 pointer-events-none"></div>
+                                    <div className="absolute inset-0 border-4 border-amber-500/20 rounded-r-xl pointer-events-none"></div>
 
                                     {/* Cover Content */}
-                                    <div className="absolute inset-0 flex flex-col items-center justify-between p-8 z-30">
-                                        <div className="flex gap-6 text-yellow-200/90 mt-6 drop-shadow-[0_0_10px_rgba(253,224,71,0.5)]">
-                                            <Atom size={28} className="animate-spin-slow" />
-                                            <Star size={24} className="animate-pulse" />
-                                            <InfinityIcon size={28} />
+                                    <div className="absolute inset-0 flex flex-col items-center justify-between p-10 z-30">
+                                        <div className="flex gap-8 text-amber-200 mt-8">
+                                            <Atom size={36} className="drop-shadow-[0_0_15px_rgba(251,191,36,0.6)]" style={{animation: 'spin 10s linear infinite'}} />
+                                            <Star size={32} className="animate-pulse drop-shadow-[0_0_10px_rgba(251,191,36,0.5)]" />
+                                            <InfinityIcon size={36} className="drop-shadow-[0_0_15px_rgba(251,191,36,0.6)]" />
                                         </div>
 
-                                        <div className="text-center backdrop-blur-sm p-4 rounded-xl border border-white/10 bg-black/30 transform hover:scale-105 transition-transform">
-                                            <h1 className="text-5xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-yellow-100 via-yellow-300 to-yellow-600 drop-shadow-sm mb-2">
-                                                TRUTH
+                                        <div className="text-center glass-morph p-8 rounded-2xl transform hover:scale-105 transition-all duration-500">
+                                            <h1 className="text-7xl md:text-8xl font-black mb-4" style={{
+                                                background: 'linear-gradient(135deg, #fef3c7 0%, #fbbf24 30%, #f59e0b 60%, #d97706 100%)',
+                                                WebkitBackgroundClip: 'text',
+                                                backgroundClip: 'text',
+                                                WebkitTextFillColor: 'transparent',
+                                                filter: 'drop-shadow(0 4px 20px rgba(251, 191, 36, 0.6))'
+                                            }}>
+                                                सत्य
                                             </h1>
-                                            <div className="h-px w-32 bg-gradient-to-r from-transparent via-blue-400 to-transparent mx-auto"></div>
-                                            <p className="text-blue-100 mt-2 text-[10px] md:text-xs tracking-[0.4em] uppercase font-light">
-                                                Science • Philosophy • Religion
+                                            <div className="h-0.5 w-40 bg-gradient-to-r from-transparent via-cyan-400 to-transparent mx-auto mb-3"></div>
+                                            <p className="text-blue-100/90 text-xs md:text-sm tracking-[0.5em] uppercase font-light">
+                                                विज्ञान • दर्शन • धर्म
                                             </p>
                                         </div>
 
-                                        <div className="mb-6 opacity-80">
-                                            <Scroll size={32} className="text-yellow-600 mx-auto drop-shadow-lg" />
+                                        <div className="mb-8">
+                                            <Scroll size={40} className="text-amber-600 drop-shadow-[0_0_20px_rgba(217,119,6,0.7)] animate-pulse" />
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* Inside Left Page */}
-                                <div className="absolute inset-0 backface-hidden rotate-y-180 z-20 bg-[#fdfbf7] rounded-l-lg shadow-inner flex flex-col overflow-hidden border-r-4 border-r-gray-300 text-slate-800">
-                                    <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')] pointer-events-none"></div>
+                                {/* Inside Left Page (Back Face) */}
+                                <div className="absolute inset-0 backface-hidden rotate-y-180 z-20 ancient-page-bg rounded-l-xl shadow-inner flex flex-col overflow-hidden border-r-2 border-r-amber-900/30 ambient-shadow">
+                                    <div className="absolute inset-0 opacity-25 bg-[url('https://www.transparenttextures.com/patterns/old-mathematics.png')] pointer-events-none mix-blend-multiply"></div>
                                     
-                                    <div className="p-8 h-full flex flex-col relative z-10">
-                                        <div className="absolute top-4 left-4 text-gray-400 font-sans text-xs">{leftPageContent?.pageNumber}</div>
+                                    <div className="p-10 h-full flex flex-col relative z-10">
+                                        <div className="absolute top-6 left-6 text-amber-900/40 font-serif text-sm italic embossed-text">
+                                            {leftPageContent?.pageNumber}
+                                        </div>
 
-                                        <div className="flex-1 flex flex-col justify-center items-center text-center">
+                                        <div className="flex-1 flex flex-col justify-center items-center text-center px-4">
                                             {leftPageContent ? (
-                                                <React.Fragment>
-                                                    <h2 className="text-2xl font-bold text-indigo-900 mb-6 border-b-2 border-yellow-500/30 pb-2">{leftPageContent.title}</h2>
-                                                    <p className="text-lg text-gray-800 leading-relaxed font-medium">{leftPageContent.text}</p>
-                                                    <div className="mt-8 text-blue-600/20"><Atom size={48} /></div>
-                                                </React.Fragment>
+                                                <>
+                                                    <h2 className="text-3xl cosmic-header-text mb-8 pb-3 border-b-2 border-cyan-400/40" data-text={leftPageContent.title}>
+                                                        {leftPageContent.title}
+                                                    </h2>
+                                                    <p className="text-xl golden-glow-text leading-relaxed font-medium">
+                                                        {leftPageContent.text}
+                                                    </p>
+                                                    <div className="mt-10 text-cyan-500/40">
+                                                        <Atom size={56} />
+                                                    </div>
+                                                </>
                                             ) : (
-                                                <div className="text-gray-300">Index</div>
+                                                <div className="text-amber-900/50 golden-glow-text text-2xl embossed-text">विषय सूची</div>
                                             )}
                                         </div>
 
-                                        <div 
-                                            onClick={prevPage}
-                                            className={`absolute bottom-0 left-0 p-6 cursor-pointer hover:bg-gray-200 transition-colors rounded-tr-3xl group ${currentPage === 0 ? 'opacity-0 pointer-events-none' : ''}`}
-                                        >
-                                            <div className="flex items-center gap-2 text-gray-600 font-bold text-sm">
-                                                <MoveLeft size={20} className="group-hover:-translate-x-1 transition-transform"/> PREV
+                                        {currentPage > 0 && (
+                                            <div onClick={prevPage} 
+                                                 className="absolute bottom-0 left-0 p-8 cursor-pointer btn-premium rounded-tr-[3rem] group">
+                                                <div className="flex items-center gap-2 text-amber-900 font-bold text-base relative z-10">
+                                                    <MoveLeft size={22} className="group-hover:-translate-x-2 transition-transform duration-300"/> पिछला
+                                                </div>
                                             </div>
-                                        </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
 
+                            {/* Book Spine (visible when closed) */}
+                            {!isOpen && (
+                                <div className="absolute top-0 left-0 w-3 h-full book-spine rounded-l-md transform-style-3d z-40"
+                                     style={{ transform: 'translateZ(10px)' }}></div>
+                            )}
                         </div>
 
+                        {/* Close Button - fixed at top-right corner, always aligned */}
                         {isOpen && (
-                            <button 
-                                onClick={closeBook}
-                                className="absolute top-4 right-4 md:right-10 text-white/50 hover:text-white hover:bg-white/10 p-2 rounded-full transition-all z-50 flex items-center gap-2"
-                            >
-                                <span className="text-xl">✕</span> Close
+                            <button onClick={closeBook}
+                                    className="fixed top-4 right-4 md:top-6 md:right-10 glass-morph text-white/80 hover:text-white hover:bg-white/10 px-6 py-3 rounded-full transition-all z-50 flex items-center gap-3 font-semibold text-sm btn-premium">
+                                <span className="text-2xl">✕</span> बंद करें
                             </button>
                         )}
+                    </div>
 
+                    {/* Footer Credits */}
+                    <div className={`absolute bottom-6 text-center text-blue-200/30 text-xs transition-opacity duration-1000 ${isOpen ? 'opacity-0' : 'opacity-100'}`}>
+                        <p>Ultra Realistic 3D Book Experience</p>
                     </div>
                 </div>
             );
