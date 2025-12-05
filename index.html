@@ -140,7 +140,7 @@
             animation-delay: var(--delay);
         }
 
-        /* Forward flip (next) */
+        /* Forward Flip (Right to Left) */
         @keyframes flipLeftEnhanced {
             0% { 
                 transform: rotateY(0deg);
@@ -156,7 +156,7 @@
             }
         }
 
-        /* Backward flip (previous) */
+        /* Backward Flip (Left to Right) */
         @keyframes flipRightEnhanced {
             0% { 
                 transform: rotateY(0deg);
@@ -263,6 +263,7 @@
             animation: slowSpin 14s linear infinite;
         }
 
+        /* Text styles */
         .scriptural-heading {
             font-family: 'Tiro Devanagari Hindi', 'Cinzel', serif;
             letter-spacing: 0.04em;
@@ -367,7 +368,7 @@ const CosmicBook = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [currentPage, setCurrentPage] = useState(0);
     const [isFlipping, setIsFlipping] = useState(false);
-    const [flipDirection, setFlipDirection] = useState(null); // 'next' | 'prev'
+    const [flipDirection, setFlipDirection] = useState('next'); // 'next' or 'prev'
     const [videoError, setVideoError] = useState(false);
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
     const [isEnglish, setIsEnglish] = useState(false);
@@ -458,7 +459,6 @@ const CosmicBook = () => {
             setTimeout(() => {
                 setCurrentPage(prev => prev + 2);
                 setIsFlipping(false);
-                setFlipDirection(null);
             }, 800);
         }
     };
@@ -471,7 +471,6 @@ const CosmicBook = () => {
             setTimeout(() => {
                 setCurrentPage(prev => prev - 2);
                 setIsFlipping(false);
-                setFlipDirection(null);
             }, 800);
         }
     };
@@ -546,7 +545,7 @@ const CosmicBook = () => {
                 </h1>
                 <div className="h-1 w-64 mx-auto bg-gradient-to-r from-transparent via-cyan-400 to-transparent mb-3 rounded-full"></div>
                 <p className="text-blue-200/60 text-xs md:text-sm uppercase tracking-[0.5em] animate-pulse font-light">
-                    पुस्तक खोलने के लिए क्लिक करें
+                    {isEnglish ? "Click to open book" : "पुस्तक खोलने के लिए क्लिक करें"}
                 </p>
             </div>
 
@@ -567,7 +566,7 @@ const CosmicBook = () => {
                     <div className={`absolute inset-0 w-full h-full ancient-page-bg rounded-r-xl book-shadow-ultra z-0 flex flex-col overflow-hidden border-l-2 border-amber-900/30 transition-all duration-[1400ms] ambient-shadow
                         ${isOpen ? 'scale-100' : 'scale-[0.97] translate-x-1'}`}>
                         
-                        <div className={`w-full h-full transition-opacity duration-500 ${isOpen && !isFlipping ? 'opacity-100' : 'opacity-0'}`}>
+                        <div className={`w-full h-full transition-opacity duration-500 ${isOpen && (!isFlipping || flipDirection === 'prev') ? 'opacity-100' : 'opacity-0'}`}>
                             <div className="absolute inset-0 opacity-25 bg-[url('https://www.transparenttextures.com/patterns/old-mathematics.png')] pointer-events-none mix-blend-multiply"></div>
                             
                             <div className="p-10 h-full flex flex-col relative z-10 text-slate-800">
@@ -593,16 +592,16 @@ const CosmicBook = () => {
                                             </div>
                                         </>
                                     ) : (
-                                        <div className="text-amber-600/50 text-2xl">समाप्त</div>
+                                        <div className="text-amber-600/50 text-2xl">{isEnglish ? "The End" : "समाप्त"}</div>
                                     )}
                                 </div>
 
-                                {/* RIGHT BOTTOM - ONLY NEXT BUTTON */}
+                                {/* RIGHT BOTTOM CONTROL (NEXT ONLY) */}
                                 {currentPage < totalPages - 2 && (
                                     <div onClick={nextPage} 
                                          className="absolute bottom-0 right-0 p-8 cursor-pointer btn-premium rounded-tl-[3rem] group">
                                         <div className="flex items-center gap-2 text-amber-900 font-bold text-base relative z-10">
-                                            {isEnglish ? 'Next' : 'अगला'} <MoveRight size={22} className="group-hover:translate-x-2 transition-transform duration-300"/>
+                                            {isEnglish ? "Next" : "अगला"} <MoveRight size={22} className="group-hover:translate-x-2 transition-transform duration-300"/>
                                         </div>
                                     </div>
                                 )}
@@ -633,26 +632,32 @@ const CosmicBook = () => {
                         </div>
                     )}
 
-                    {/* FLIP ANIMATION OVERLAY (PREVIOUS) */}
+                    {/* FLIP ANIMATION OVERLAY (PREVIOUS - Starts from Left, flips Right) */}
                     {isFlipping && flipDirection === 'prev' && (
                         <div className="absolute inset-0 w-full h-full ancient-page-bg rounded-l-xl book-shadow-ultra z-20 origin-right transform-style-3d border-r-2 border-amber-900/20"
-                             style={{ animation: 'flipRightEnhanced 0.8s forwards cubic-bezier(0.645, 0.045, 0.355, 1)' }}>
+                             style={{ 
+                                 left: '-100%',
+                                 animation: 'flipRightEnhanced 0.8s forwards cubic-bezier(0.645, 0.045, 0.355, 1)' 
+                             }}>
                             
-                            <div className="absolute inset-0 backface-hidden p-10 flex flex-col items-center justify-center ambient-shadow">
+                            {/* The "Back" of the flipping page (visible first on left) */}
+                            <div className="absolute inset-0 backface-hidden p-10 flex flex-col items-center justify-center ambient-shadow" style={{transform: 'rotateY(180deg)'}}>
                                 <h2 className={`text-2xl mb-4 ${isEnglish ? 'english-heading' : 'scriptural-heading'}`}>
                                     {leftPage?.displayTitle}
                                 </h2>
                             </div>
 
-                            <div className="absolute inset-0 backface-hidden rotate-y-180 p-10 flex flex-col items-center justify-center ambient-shadow">
+                            {/* The "Front" of the flipping page (lands on right) */}
+                            <div className="absolute inset-0 backface-hidden p-10 flex flex-col items-center justify-center ambient-shadow">
                                 <h2 className={`text-xl opacity-70 ${isEnglish ? 'english-heading' : 'scriptural-heading'}`}>
-                                    {getPageData(currentPage - 2)?.displayTitle || ''}
+                                    {/* This is complex to perfect, but we show the page we are turning TO */}
+                                    {getPageData(currentPage - 2)?.displayTitle || ''} 
                                 </h2>
                             </div>
                         </div>
                     )}
 
-                    {/* FRONT COVER */}
+                    {/* FRONT COVER (hamesha clearly visible when closed) */}
                     <div
                         className="absolute inset-0 w-full h-full origin-left transform-style-3d z-30 rounded-r-xl book-shadow-ultra"
                         style={{
@@ -660,7 +665,7 @@ const CosmicBook = () => {
                             transition: 'transform 1.4s cubic-bezier(0.645, 0.045, 0.355, 1)'
                         }}
                     >
-                        {/* Front face (cover) */}
+                        {/* Front face */}
                         <div className="absolute inset-0 backface-hidden z-20 rounded-r-xl overflow-hidden border-l-[6px] border-l-amber-600 bg-black book-shadow-ultra">
                             {!videoError ? (
                                 <video src={videoUrl} className="absolute inset-0 w-full h-full object-cover" 
@@ -695,11 +700,11 @@ const CosmicBook = () => {
                                         WebkitTextFillColor: 'transparent',
                                         filter: 'drop-shadow(0 4px 20px rgba(251, 191, 36, 0.6))'
                                     }}>
-                                        सत्य
+                                        {isEnglish ? "TRUTH" : "सत्य"}
                                     </h1>
                                     <div className="h-0.5 w-40 bg-gradient-to-r from-transparent via-cyan-400 to-transparent mx-auto mb-3"></div>
                                     <p className="text-blue-100/90 text-xs md:text-sm tracking-[0.5em] uppercase font-light">
-                                        विज्ञान • दर्शन • धर्म
+                                        {isEnglish ? "Science • Philosophy • Religion" : "विज्ञान • दर्शन • धर्म"}
                                     </p>
                                 </div>
 
@@ -737,19 +742,16 @@ const CosmicBook = () => {
                                                 </div>
                                             </>
                                         ) : (
-                                            <div className="text-amber-900/50 text-2xl">विषय सूची</div>
+                                            <div className="text-amber-900/50 text-2xl">{isEnglish ? "Table of Contents" : "विषय सूची"}</div>
                                         )}
                                     </div>
 
-                                    {/* LEFT BOTTOM - PREVIOUS BUTTON (yahi user ko chahiye tha) */}
+                                    {/* LEFT BOTTOM CONTROL (PREVIOUS BUTTON MOVED HERE) */}
                                     {currentPage > 0 && (
-                                        <div
-                                            onClick={prevPage}
-                                            className="absolute bottom-0 left-0 p-8 cursor-pointer btn-premium rounded-tr-[3rem] group"
-                                        >
+                                        <div onClick={prevPage} 
+                                             className="absolute bottom-0 left-0 p-8 cursor-pointer btn-premium rounded-tr-[3rem] group">
                                             <div className="flex items-center gap-2 text-amber-900 font-bold text-base relative z-10">
-                                                <MoveLeft size={22} className="group-hover:-translate-x-2 transition-transform duration-300" />
-                                                {isEnglish ? 'Previous' : 'पिछला'}
+                                                <MoveLeft size={22} className="group-hover:-translate-x-2 transition-transform duration-300"/> {isEnglish ? "Previous" : "पिछला"}
                                             </div>
                                         </div>
                                     )}
@@ -769,13 +771,13 @@ const CosmicBook = () => {
                         onClick={closeBook}
                         className="fixed top-4 right-4 md:top-6 md:right-10 glass-morph text-white/80 hover:text-white hover:bg-white/10 px-6 py-3 rounded-full transition-all z-50 flex items-center gap-3 font-semibold text-sm btn-premium"
                     >
-                        <span className="text-2xl">✕</span> बंद करें
+                        <span className="text-2xl">✕</span> {isEnglish ? "Close" : "बंद करें"}
                     </button>
                 )}
 
                 {isOpen && (
                     <div className="fixed top-4 left-4 md:top-6 md:left-10 z-50 flex items-center gap-3 glass-morph px-4 py-2 rounded-full text-xs md:text-sm text-sky-100/90">
-                        <span className="font-semibold">अनुवाद</span>
+                        <span className="font-semibold">{isEnglish ? "Language" : "अनुवाद"}</span>
                         <button
                             onClick={() => setIsEnglish(prev => !prev)}
                             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 ${
