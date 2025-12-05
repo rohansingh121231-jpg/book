@@ -1,4 +1,4 @@
-  <!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
@@ -21,8 +21,8 @@
             font-family: 'Merriweather', serif;
             background: radial-gradient(ellipse at bottom, #0d1b2a 0%, #000000 100%);
             color: #e2e8f0;
-            overflow: hidden; /* Prevent scrolling completely */
-            touch-action: none; /* Disable default touch actions to prevent pull-to-refresh on mobile */
+            overflow: hidden; 
+            touch-action: pan-x pan-y; /* Allow scrolling/panning if needed */
         }
         
         h1, h2, h3 { font-family: 'Cinzel', serif; }
@@ -237,8 +237,6 @@
 
         .scriptural-body {
             font-family: 'Tiro Devanagari Hindi', 'Merriweather', serif;
-            /* Font size scales with viewport height for perfect fit */
-            font-size: clamp(0.7rem, 2vmin, 1.1rem); 
             line-height: 1.8;
             color: #4a2f16;
         }
@@ -252,9 +250,16 @@
 
         .english-body {
             font-family: 'Merriweather', serif;
-            font-size: clamp(0.65rem, 1.9vmin, 1.05rem);
             line-height: 1.7;
             color: #111827;
+        }
+
+        /* Enhanced readability when open */
+        .book-open-text .scriptural-body {
+            font-weight: 500;
+        }
+        .book-open-text .english-body {
+            font-weight: 500;
         }
     </style>
 </head>
@@ -332,16 +337,28 @@ const CosmicBook = () => {
     const [videoError, setVideoError] = useState(false);
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
     const [isEnglish, setIsEnglish] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
     
     const audioRef = useRef(new Audio(FLIP_SOUND_URL));
 
     useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth < 768);
+        };
+        handleResize(); // Init
+        
         const handleMouseMove = (e) => {
             setMousePos({ x: e.clientX, y: e.clientY });
         };
+        
         window.addEventListener('mousemove', handleMouseMove);
+        window.addEventListener('resize', handleResize);
         audioRef.current.volume = 0.5;
-        return () => window.removeEventListener('mousemove', handleMouseMove);
+        
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('resize', handleResize);
+        };
     }, []);
 
     const playFlipSound = () => {
@@ -463,12 +480,39 @@ const CosmicBook = () => {
     const parallaxX = (mousePos.x - window.innerWidth / 2) / 50;
     const parallaxY = (mousePos.y - window.innerHeight / 2) / 50;
 
+    // --- ZOOM & POSITION LOGIC ---
+    // When open:
+    // 1. Scale up (1.5x on Desktop, fit width on Mobile)
+    // 2. TranslateX(50%): This moves the "spine" to the center of the screen
+    //    because the Left Page is flipped -180deg (sticking out to the left).
+    //    Without this, the left page is off-screen.
+    
+    const getBookTransform = () => {
+        if (isOpen) {
+            // OPEN STATE
+            // Mobile: Maximize width (scale based on viewport), Shift right to show spread
+            // Desktop: Zoom in significantly
+            const scale = isMobile ? 1.0 : 1.4; 
+            
+            // On mobile, the spread (2 pages) is wider than screen, so we fit width of ONE page approx
+            // and user can pan, OR we fit 2 pages very small.
+            // User requested "Bada dikhna chahiye" (Should look big).
+            // So we scale it up and centering spine ensures both are accessible.
+            return `translateX(50%) rotateX(0deg) rotateY(0deg) scale(${scale})`;
+        } else {
+            // CLOSED STATE
+            return `translateY(${parallaxY * 0.3}px) rotateX(${parallaxY * 0.2}deg) rotateY(${parallaxX * 0.2}deg) scale(1.05)`;
+        }
+    };
+
+    // Dynamic Font Size logic
+    const getFontSizeTitle = () => isOpen ? (isMobile ? '1.5rem' : '2.5rem') : (isMobile ? '1.25rem' : '2rem');
+    const getFontSizeBody = () => isOpen ? (isMobile ? '0.95rem' : '1.2rem') : (isMobile ? '0.7rem' : '1rem');
+
     return (
-        // Using h-[100dvh] for dynamic viewport height to fix mobile browser bar issues
         <div className="h-[100dvh] w-full flex flex-col items-center justify-center p-2 md:p-4 overflow-hidden relative">
             <div className="absolute inset-0 bg-gradient-to-b from-[#0a0e27] via-[#0d1b2a] to-black"></div>
             
-            {/* Reduced number of stars for performance on weak devices */}
             {[...Array(30)].map((_, i) => (
                 <div key={i} className="star" style={{
                     left: `${Math.random() * 100}%`,
@@ -494,22 +538,17 @@ const CosmicBook = () => {
 
             <div className="relative perspective-3000 w-full h-full flex items-center justify-center z-20">
                 
-                {/* MASTER RESPONSIVE CONTAINER 
-                    - aspect-[1/1.5] ensures book shape
-                    - h-[60vh] to h-[75vh] ensures it fits vertically
-                    - max-w-[90vw] ensures it fits horizontally
+                {/* MASTER CONTAINER 
+                   When Open: We shift X by 50% to center the spine (since left page is absolute -180deg)
                 */}
                 <div 
                     className={`relative transition-all duration-[1400ms] ease-out transform-style-3d cursor-pointer
                         aspect-[1/1.5]
-                        h-[55vh] md:h-[75vh] 
-                        max-w-[90vw]
+                        ${isOpen ? 'w-[42vw] md:w-[35vw]' : 'h-[50vh] md:h-[70vh] max-w-[80vw]'} 
                         ${isOpen ? '' : 'hover:scale-105'}`}
                     onClick={!isOpen ? openBook : undefined}
                     style={{
-                        transform: isOpen 
-                            ? 'translateX(0)'
-                            : `translateY(${parallaxY * 0.3}px) rotateX(${parallaxY * 0.2}deg) rotateY(${parallaxX * 0.2}deg) scale(1.05)`,
+                        transform: getBookTransform(),
                         transition: 'all 1.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
                     }}
                 >
@@ -520,9 +559,8 @@ const CosmicBook = () => {
                         <div className={`w-full h-full transition-opacity duration-500 ${isOpen && (!isFlipping || flipDirection === 'prev') ? 'opacity-100' : 'opacity-0'}`}>
                             <div className="absolute inset-0 opacity-25 bg-[url('https://www.transparenttextures.com/patterns/old-mathematics.png')] pointer-events-none mix-blend-multiply"></div>
                             
-                            {/* Responsive Padding: p-4 on mobile, p-8 or p-10 on desktop */}
-                            <div className="p-4 md:p-8 lg:p-10 h-full flex flex-col relative z-10 text-slate-800">
-                                <div className="absolute top-4 right-4 md:top-6 md:right-6 text-amber-900/40 font-serif text-xs md:text-sm italic">
+                            <div className="p-4 md:p-8 lg:p-10 h-full flex flex-col relative z-10 text-slate-800 book-open-text">
+                                <div className="absolute top-2 right-2 md:top-6 md:right-6 text-amber-900/40 font-serif text-xs md:text-sm italic">
                                     {rightPage?.pageNumber}
                                 </div>
                                 
@@ -530,16 +568,20 @@ const CosmicBook = () => {
                                     {rightPage ? (
                                         <>
                                             <h2
-                                                className={`text-xl md:text-3xl mb-4 md:mb-6 pb-2 border-b border-amber-700/40 ${
+                                                className={`mb-3 md:mb-6 pb-2 border-b border-amber-700/40 ${
                                                     isEnglish ? 'english-heading' : 'scriptural-heading'
                                                 }`}
+                                                style={{ fontSize: getFontSizeTitle() }}
                                             >
                                                 {rightPage.displayTitle}
                                             </h2>
-                                            <p className={`${isEnglish ? 'english-body' : 'scriptural-body'}`}>
+                                            <p 
+                                                className={`${isEnglish ? 'english-body' : 'scriptural-body'}`}
+                                                style={{ fontSize: getFontSizeBody() }}
+                                            >
                                                 {rightPage.displayText}
                                             </p>
-                                            <div className="mt-6 md:mt-10 text-cyan-500/40 animate-pulse">
+                                            <div className="mt-4 md:mt-10 text-cyan-500/40 animate-pulse">
                                                 <Brain size="10%" style={{ minWidth: '32px', maxWidth: '56px' }} />
                                             </div>
                                         </>
@@ -552,7 +594,7 @@ const CosmicBook = () => {
                                 {currentPage < totalPages - 2 && (
                                     <div onClick={nextPage} 
                                          className="absolute bottom-0 right-0 p-4 md:p-8 cursor-pointer btn-premium rounded-tl-[2rem] md:rounded-tl-[3rem] group">
-                                        <div className="flex items-center gap-2 text-amber-900 font-bold text-xs md:text-base relative z-10">
+                                        <div className="flex items-center gap-1 md:gap-2 text-amber-900 font-bold text-xs md:text-base relative z-10">
                                             {isEnglish ? "Next" : "अगला"} <MoveRight size={18} className="group-hover:translate-x-2 transition-transform duration-300"/>
                                         </div>
                                     </div>
@@ -571,13 +613,13 @@ const CosmicBook = () => {
                              style={{ animation: 'flipLeftSmoother 0.9s forwards cubic-bezier(0.4, 0.0, 0.2, 1)' }}>
                             
                             <div className="absolute inset-0 backface-hidden p-10 flex flex-col items-center justify-center ambient-shadow">
-                                <h2 className={`text-xl md:text-2xl mb-4 ${isEnglish ? 'english-heading' : 'scriptural-heading'}`}>
+                                <h2 className={`text-xl md:text-2xl mb-4 ${isEnglish ? 'english-heading' : 'scriptural-heading'}`} style={{ fontSize: getFontSizeTitle() }}>
                                     {rightPage?.displayTitle}
                                 </h2>
                             </div>
 
                             <div className="absolute inset-0 backface-hidden rotate-y-180 p-10 flex flex-col items-center justify-center ambient-shadow">
-                                <h2 className={`text-lg md:text-xl opacity-70 ${isEnglish ? 'english-heading' : 'scriptural-heading'}`}>
+                                <h2 className={`text-lg md:text-xl opacity-70 ${isEnglish ? 'english-heading' : 'scriptural-heading'}`} style={{ fontSize: getFontSizeTitle() }}>
                                     {getPageData(currentPage + 2)?.displayTitle || ''}
                                 </h2>
                             </div>
@@ -593,13 +635,13 @@ const CosmicBook = () => {
                              }}>
                             
                             <div className="absolute inset-0 backface-hidden p-10 flex flex-col items-center justify-center ambient-shadow" style={{transform: 'rotateY(180deg)'}}>
-                                <h2 className={`text-xl md:text-2xl mb-4 ${isEnglish ? 'english-heading' : 'scriptural-heading'}`}>
+                                <h2 className={`text-xl md:text-2xl mb-4 ${isEnglish ? 'english-heading' : 'scriptural-heading'}`} style={{ fontSize: getFontSizeTitle() }}>
                                     {leftPage?.displayTitle}
                                 </h2>
                             </div>
 
                             <div className="absolute inset-0 backface-hidden p-10 flex flex-col items-center justify-center ambient-shadow">
-                                <h2 className={`text-lg md:text-xl opacity-70 ${isEnglish ? 'english-heading' : 'scriptural-heading'}`}>
+                                <h2 className={`text-lg md:text-xl opacity-70 ${isEnglish ? 'english-heading' : 'scriptural-heading'}`} style={{ fontSize: getFontSizeTitle() }}>
                                     {getPageData(currentPage - 2)?.displayTitle || ''} 
                                 </h2>
                             </div>
@@ -667,8 +709,8 @@ const CosmicBook = () => {
                             <div className="ancient-page-bg rounded-l-xl shadow-inner flex flex-col overflow-hidden border-r-2 border-r-amber-900/30 ambient-shadow h-full">
                                 <div className="absolute inset-0 opacity-25 bg-[url('https://www.transparenttextures.com/patterns/old-mathematics.png')] pointer-events-none mix-blend-multiply"></div>
 
-                                <div className="p-4 md:p-10 h-full flex flex-col relative z-10">
-                                    <div className="absolute top-4 left-4 md:top-6 md:left-6 text-amber-900/40 font-serif text-xs md:text-sm italic">
+                                <div className="p-4 md:p-10 h-full flex flex-col relative z-10 book-open-text">
+                                    <div className="absolute top-2 left-2 md:top-6 md:left-6 text-amber-900/40 font-serif text-xs md:text-sm italic">
                                         {leftPage?.pageNumber}
                                     </div>
 
@@ -676,16 +718,20 @@ const CosmicBook = () => {
                                         {leftPage ? (
                                             <>
                                                 <h2
-                                                    className={`text-xl md:text-3xl mb-4 md:mb-6 pb-2 border-b border-amber-700/40 ${
+                                                    className={`mb-3 md:mb-6 pb-2 border-b border-amber-700/40 ${
                                                         isEnglish ? 'english-heading' : 'scriptural-heading'
                                                     }`}
+                                                    style={{ fontSize: getFontSizeTitle() }}
                                                 >
                                                     {leftPage.displayTitle}
                                                 </h2>
-                                                <p className={`${isEnglish ? 'english-body' : 'scriptural-body'}`}>
+                                                <p 
+                                                    className={`${isEnglish ? 'english-body' : 'scriptural-body'}`}
+                                                    style={{ fontSize: getFontSizeBody() }}
+                                                >
                                                     {leftPage.displayText}
                                                 </p>
-                                                <div className="mt-6 md:mt-10 text-cyan-500/40">
+                                                <div className="mt-4 md:mt-10 text-cyan-500/40">
                                                     <Atom size="10%" style={{ minWidth: '32px', maxWidth: '56px' }} />
                                                 </div>
                                             </>
@@ -698,7 +744,7 @@ const CosmicBook = () => {
                                     {currentPage > 0 && (
                                         <div onClick={prevPage} 
                                              className="absolute bottom-0 left-0 p-4 md:p-8 cursor-pointer btn-premium rounded-tr-[2rem] md:rounded-tr-[3rem] group">
-                                            <div className="flex items-center gap-2 text-amber-900 font-bold text-xs md:text-base relative z-10">
+                                            <div className="flex items-center gap-1 md:gap-2 text-amber-900 font-bold text-xs md:text-base relative z-10">
                                                 <MoveLeft size={18} className="group-hover:-translate-x-2 transition-transform duration-300"/> {isEnglish ? "Previous" : "पिछला"}
                                             </div>
                                         </div>
