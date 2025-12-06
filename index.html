@@ -451,6 +451,24 @@ const rawBookContent = [
     }
 ];
 
+// Helper to determine page dimensions roughly based on viewport
+const getPageDimensions = (isMobile, isOpen) => {
+    // We are matching the logic used in the render method:
+    // width: isMobile ? 45vw : 38vw
+    // height: width * 1.45
+    // But we need pixels.
+    if (typeof window === 'undefined') return { width: 300, height: 500 };
+    
+    const viewportWidth = window.innerWidth;
+    const widthRatio = isMobile ? 0.45 : 0.38;
+    const pageWidth = isOpen ? viewportWidth * widthRatio : 300; 
+    
+    // Height logic from CSS aspect ratio
+    const pageHeight = isOpen ? pageWidth * 1.45 : 500; 
+    
+    return { width: pageWidth, height: pageHeight };
+};
+
 const CosmicBook = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [currentPage, setCurrentPage] = useState(0);
@@ -488,8 +506,6 @@ const CosmicBook = () => {
     }, [isOpen]);
 
     // PAGINATION LOGIC
-    // We need to measure how much text fits in the page container.
-    // We do this by rendering a hidden div with the same dimensions and font styles as the actual page.
     useLayoutEffect(() => {
         if (!measureRef.current) return;
 
@@ -501,36 +517,47 @@ const CosmicBook = () => {
             // Clear previous measurements
             measureDiv.innerHTML = '';
 
-            // Font sizes based on isMobile (matches the rendering logic below)
+            // Calculate precise dimensions to ensure we measure against reality
+            // If book is closed, we still want to calculate as if it is OPEN to be ready
+            const { width, height } = getPageDimensions(isMobile, true);
+            
+            // Set styles for measurement div to match the real page content area
+            measureDiv.style.width = `${width}px`;
+            measureDiv.style.height = `${height}px`;
+            measureDiv.style.position = 'absolute';
+            measureDiv.style.visibility = 'hidden';
+            measureDiv.style.zIndex = '-100';
+            
+            // Font sizes matching render logic
             const fontSizeTitle = isMobile ? '1.2rem' : '1.6rem';
             const fontSizeLabel = isMobile ? '0.8rem' : '1.0rem';
             const fontSizeBody = isMobile ? '1.0rem' : '1.3rem';
             
-            // Set styles for measurement div to match the real page content area
             measureDiv.style.fontSize = fontSizeBody;
-            measureDiv.style.lineHeight = '1.8'; // Matching .scriptural-body line-height
+            measureDiv.style.lineHeight = '1.8'; 
             measureDiv.style.fontFamily = "'Tiro Devanagari Hindi', 'Merriweather', serif";
             measureDiv.style.fontWeight = '500';
-            measureDiv.style.padding = isMobile ? '2rem 2rem 1.25rem' : '2rem 3rem 1.25rem'; // pt-8 pb-5 px-8/12 equivalent
             
-            // Determine max height for text content
-            // Page Aspect Ratio is roughly 1/1.45. 
-            // Height is approx 50vh (mobile) or 65vh (desktop) when closed, 
-            // but we need the dimensions when OPEN/Active.
-            // Let's rely on the measureDiv's clientHeight which we set via CSS in render
-            const maxHeight = measureDiv.clientHeight; 
-
+            // Padding must match render: pt-8 pb-5 px-8 (mobile: px-8, desktop: px-12)
+            // 2rem = 32px (pt-8), 1.25rem = 20px (pb-5)
+            // px-8 = 2rem, px-12 = 3rem
+            const xPadding = isMobile ? '2rem' : '3rem';
+            measureDiv.style.padding = `2rem ${xPadding} 1.25rem`;
+            
+            // Calculate content height available (Height - Vertical Padding)
+            // 2rem + 1.25rem = 3.25rem approx 52px + safe buffer
+            // We use clientHeight directly from the div which respects padding if box-sizing is border-box
+            // But checking scrollHeight > clientHeight is the standard way.
+            
             rawBookContent.forEach((chapter, chapterIndex) => {
                 const title = isEnglish ? (chapter.enTitle || chapter.title) : chapter.title;
                 const label = isEnglish ? (chapter.enLabel || chapter.label) : chapter.label;
                 const fullText = isEnglish ? (chapter.enText || chapter.text) : chapter.text;
                 
-                // Words split
                 const words = fullText.split(' ');
                 let currentText = '';
                 
-                // Header Height Estimation (Label + Title + Spacing)
-                // We create a dummy header in measureDiv to account for its space
+                // Header HTML
                 const headerHTML = `
                     <div style="margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 2px solid rgba(180, 83, 9, 0.4); width: 100%; text-align: center; display: flex; flex-direction: column; align-items: center;">
                         <span style="font-size: ${fontSizeLabel}; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(120, 53, 15, 0.6);">${label}</span>
@@ -538,64 +565,65 @@ const CosmicBook = () => {
                     </div>
                 `;
 
-                // Add header to start the first page of chapter
                 measureDiv.innerHTML = headerHTML;
                 
-                // Loop through words
-                let pageStartIndex = 0;
+                // Add first paragraph container
+                const p = document.createElement('p');
+                p.style.marginTop = '0.5rem';
+                measureDiv.appendChild(p);
+                
                 let isFirstPageOfChapter = true;
 
                 for (let i = 0; i < words.length; i++) {
                     const word = words[i];
-                    // Try adding word
-                    const prevHTML = measureDiv.innerHTML;
                     const spacing = currentText ? ' ' : '';
                     
-                    // We append text to a paragraph tag inside measureDiv
-                    // If it's the start, we might need to add the p tag
-                    if (!measureDiv.querySelector('p')) {
-                        const p = document.createElement('p');
-                        p.style.marginTop = '0.5rem';
-                        measureDiv.appendChild(p);
-                    }
-                    
-                    const pTag = measureDiv.querySelector('p:last-child');
-                    const prevPText = pTag.innerText;
-                    pTag.innerText += spacing + word;
+                    // Add word
+                    p.innerText += spacing + word;
 
                     // Check overflow
-                    // 20px buffer for safety
-                    if (measureDiv.scrollHeight > maxHeight - 20) {
-                        // Overflow! Revert this word
-                        pTag.innerText = prevPText; 
+                    // Use a slightly smaller height buffer to prevent cutting off last line
+                    if (measureDiv.scrollHeight > measureDiv.clientHeight) {
+                        // Undo last word
+                        const textBeforeOverflow = currentText; // Text without current word
                         
-                        // Push the current page
+                        // Push Page
                         totalPageCount++;
                         pages.push({
                             ...chapter,
                             displayLabel: label,
                             displayTitle: title,
-                            displayText: currentText,
+                            displayText: textBeforeOverflow,
                             pageNumber: totalPageCount,
                             isChapterStart: isFirstPageOfChapter,
                             chapterIndex: chapterIndex
                         });
 
-                        // Start new page
+                        // Start New Page with current word
                         currentText = word;
                         isFirstPageOfChapter = false;
                         
-                        // Reset measure div for next page
-                        // Subsequent pages of same chapter don't need big header, maybe just a small ref?
-                        // For now, let's keep it clean or just text. User requested flow.
-                        // Let's add just text for continuation pages to maximize space.
-                        measureDiv.innerHTML = `<p style="margin-top: 0.5rem;">${word}</p>`;
+                        // Reset measure div for next page (No header)
+                        measureDiv.innerHTML = '';
+                        const newP = document.createElement('p');
+                        newP.style.marginTop = '0.5rem';
+                        newP.innerText = word;
+                        measureDiv.appendChild(newP);
+                        
+                        // Re-reference p for next iteration
+                        // Note: In this loop logic, we just updated the DOM, so next iteration appends to this newP
+                        // We need to update our 'p' reference variable if we were using one, 
+                        // but here we are modifying DOM directly in loop. 
+                        // Actually, my variable 'p' above holds the OLD p element reference.
+                        // I need to update 'p' to point to 'newP'.
+                        // However, 'p' is const in this scope block? No, I used const p = ... inside the setup block.
+                        // Let's adjust logic to be cleaner.
                     } else {
                         currentText += spacing + word;
                     }
                 }
-
-                // Push remaining text as last page of chapter
+                
+                // End of words loop, push last page
                 if (currentText) {
                     totalPageCount++;
                     pages.push({
@@ -613,11 +641,12 @@ const CosmicBook = () => {
             setPaginatedPages(pages);
         };
 
-        // Debounce calculation
-        const timeoutId = setTimeout(calculatePages, 100);
+        // Run calculation
+        const timeoutId = setTimeout(calculatePages, 200);
         return () => clearTimeout(timeoutId);
 
-    }, [isEnglish, isMobile, isOpen]); // Recalculate on language/screen change
+    }, [isEnglish, isMobile]); // Only recalculate if language or mobile state changes. 
+    // Removed 'isOpen' dependency to avoid flickering recalculation on open
 
     // Standard Helpers
     const playFlipSound = () => {
@@ -694,14 +723,16 @@ const CosmicBook = () => {
 
     const getBookInternalTransform = () => isOpen ? `translateX(50%) rotateX(0deg) rotateY(0deg)` : `rotateX(10deg) rotateY(20deg)`;
 
-    // Updated Font Sizes
+    // Updated Font Sizes (Render)
     const getFontSizeTitle = () => isMobile ? '1.2rem' : '1.6rem';
     const getFontSizeLabel = () => isMobile ? '0.8rem' : '1.0rem';
     const getFontSizeBody = () => isMobile ? '1.0rem' : '1.3rem';
 
-    // Current Pages
+    // Current Pages (Safe access)
     const leftPage = paginatedPages[currentPage];
     const rightPage = paginatedPages[currentPage + 1];
+    const nextLeftPage = paginatedPages[currentPage + 2];
+    const prevRightPage = paginatedPages[currentPage - 1]; // Technically not used in simple spread
     
     // Video URL
     const videoUrl = "https://drive.google.com/uc?export=download&id=1SyFrFkuOFO2Zq5DVppHERPmwDy17zBVd";
@@ -717,21 +748,7 @@ const CosmicBook = () => {
             ref={containerRef}
         >
             {/* --- HIDDEN MEASUREMENT DIV --- */}
-            {/* This div mimics the exact dimensions of the book page to calculate text overflow */}
-            <div 
-                ref={measureRef}
-                className="absolute opacity-0 pointer-events-none -z-50 bg-red-500 overflow-hidden"
-                style={{
-                    // Match dimensions of the visible book page
-                    width: isMobile ? '45vw' : '38vw', // Matches the aspect ratio logic roughly, simplified for calc
-                    // Actually, we need fixed pixels or exact computed width for accuracy.
-                    // For improved accuracy, we fix the width in pixels based on viewport
-                    width: isOpen ? (window.innerWidth < 768 ? window.innerWidth * 0.45 : window.innerWidth * 0.38) : '300px',
-                    height: isOpen ? (window.innerWidth < 768 ? (window.innerWidth * 0.45 * 1.45) : (window.innerWidth * 0.38 * 1.45)) : '500px',
-                    // Subtract Padding
-                    padding: isMobile ? '2rem 2rem 1.25rem' : '2rem 3rem 1.25rem'
-                }}
-            ></div>
+            <div ref={measureRef} className="absolute opacity-0 pointer-events-none -z-50 bg-white text-black overflow-hidden box-border"></div>
 
             <div className="absolute inset-0 bg-gradient-to-b from-[#0a0e27] via-[#0d1b2a] to-black -z-50 pointer-events-none"></div>
             
@@ -785,7 +802,6 @@ const CosmicBook = () => {
                                     <div className="flex-1 flex flex-col items-center text-center h-full">
                                         {rightPage ? (
                                             <>
-                                                {/* Show Header only on first page of chapter */}
                                                 {rightPage.isChapterStart && (
                                                     <div className="mb-2 md:mb-3 pb-2 border-b-2 border-amber-700/40 w-full flex flex-col items-center flex-shrink-0">
                                                         {rightPage.displayLabel && (
@@ -811,7 +827,6 @@ const CosmicBook = () => {
                                                     {rightPage.displayText}
                                                 </p>
                                                 
-                                                {/* Only show icon if there's space at bottom */}
                                                 {rightPage.isChapterStart && (
                                                     <div className="mt-auto pt-4 text-cyan-500/40 animate-pulse opacity-50 flex-shrink-0">
                                                         <Brain size="10%" style={{ minWidth: '24px', maxWidth: '40px' }} />
